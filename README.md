@@ -1,28 +1,29 @@
 # Scrabble Solitaire - Bash
 
-Un petit projet de jeu de Scrabble en Bash, réalisé dans le cadre du cours de Programmation Système de Dauphine.
+A lightweight Scrabble-style game built with Bash, developed as part of the System Programming course at Université Paris Dauphine.
 
-## Fonctionnalités
-- Piocher des lettres aléatoirement
-- Composer des mots avec les lettres disponibles
-- Validation automatique des mots à l'aide d'un dictionnaire
-- Calcul de points selon les lettres utilisées
-- Partie en 10 tours
+## Features
+- Random letter drawing
+- Word creation from available letters
+- Automatic word validation using a dictionary
+- Score calculation based on letter values
+- 10-round gameplay
 
-## Prérequis
-- Bash (Linux / Mac ou Windows avec WSL / Git Bash)
-- Un fichier `Lettres.txt` (sac de lettres)
-- Un fichier `Dictionnaire.txt` (liste des mots valides)
+## Requirements
+- Bash (Linux / macOS, or Windows with WSL / Git Bash)
+- `Lettres.txt` (letter bag)
+- `Dictionnaire.txt` (list of valid words)
 
-## Lancer le jeu
+## Getting Started
+Clone the repository and make the main script executable:
+
 ```bash
 chmod +x jeu.sh
 ./jeu.sh
-```
 
-## Auteurs
+## Author
 - William Miserolle (TD6)
 
-## Remarque
-Ce projet est à but pédagogique et montre comment utiliser des tableaux associatifs, des fonctions, et rendre un jeu interactif dans le terminal avec un affichage coloré !
+## Notes
+This project is intended for educational purposes. It showcases how to use associative arrays, modular functions, and create an interactive terminal-based game with colored output in Bash.
 
