@@ -4,8 +4,6 @@
 
 # ==========================================================
 #            SCRABBLE - Programmation Système
-#            Cours de Madame KHADOUJA ZELLAMA
-#            William Miserolle TD6
 # ==========================================================
 
 
@@ -30,44 +28,55 @@ charger_sac(){
 }
 
 charger_sac2() {
+
     declare -gA points
     declare -gA quantite
 
-    total_lignes=$(wc -l < "$1") # compte le nombre de lignes dans le fichier
+    nb_lignes=$(wc -l < "$1") #compt le nb de ligne dans tout le fichier dico
     current_ligne=0
 
-    echo -e "\n\e[1;36mChargement du sac de lettres...\e[0m"
+    echo ""
+    echo -e "\e[1;36m Chargement du sac de lettres : \e[0m"
     echo -n "[                    ] 0%"
 
-    while IFS=',' read -r lettre valeur nombre; do
+    while IFS=',' read -r lettre valeur nombre; 
+    do
         val=$(echo "$valeur" | cut -d. -f1)
         nb=$(echo "$nombre" | cut -d. -f1)
 
         points[$lettre]=$val
         quantite[$lettre]=$nb
 
-        ((current_ligne++))
+        ((ligne_dans_sac+=1))
 
-        # mise à jour de la barre tous les 1 ou 2 lettres
-        if (( current_ligne % 1 == 0 )); then
-            percent=$(( current_ligne * 100 / total_lignes ))
-            filled=$(( percent / 5 )) # 20 caractères en tout pour la barre
+        #progression de la barre
+        if (( ligne_dans_sac % 1 == 0 )); 
+        then
+            pourcentage=$(( ligne_dans_sac * 100 / nb_lignes ))
+            fin_bar=$(( pourcentage / 5 )) #20 barres diff
 
             bar="["
-            for ((i=0; i<filled; i++)); do
+
+            for ((i=0; i<fin_bar; i++)); 
+            do
                 bar+="█"
             done
-            for ((i=filled; i<20; i++)); do
+
+            for ((i=fin_bar; i<20; i++)); 
+            do
                 bar+=" "
             done
+
             bar+="]"
 
-            echo -ne "\\r${bar} ${percent}%"
+            echo -ne "\\r${bar} ${pourcentage}%"
         fi
 
     done < "$1"
 
-    echo -e "\n\n\e[1;32m[OK] Sac chargé avec ${#quantite[@]} lettres différentes.\e[0m"
+    echo ""
+    echo ""
+    echo -e " Sac chargé avec ${#quantite[@]} lettres "
 }
 
 
@@ -250,20 +259,20 @@ supprimer_lettre() {
 
 
 untour() {
-    echo -e "\e[1;35mTon porte-lettres :\e[0m"
+    echo "Ton porte-lettres :"
     for lettre in "${porte_lettres[@]}"
     do
-        echo -ne "[\e[1;34m$lettre\e[0m] "
+        echo -ne "[\e[1;34m $lettre \e[0m] " #pour styliser le porte lettre on met des [ ] et on met la lettre en bleu
     done
-    echo -e "\n"
+    echo ""
 
-    #echo "Ton porte lettre est : ${porte_lettres[*]}"
+    #echo "Ton porte lettre est : ${porte_lettres[@]}"
 
     #demande au joueur s'il peut faire un mot
     choix=""
     while [[ "$choix" != "o" && "$choix" != "n" ]]; #tant que c pas o ou n
     do
-        read -rp "Peux tu faire un mot ? (o/n) : " choix
+        read -rp "Peux tu faire un mot ? (o ou n) : " choix
     done
 
 
@@ -289,6 +298,40 @@ untour() {
                 ((score_total+=score_mot)) #on met a jour le score du joueur
                 
                 echo "Bravo ! tu a gagné $score_mot points avec ton mot $mot_joueur !"
+
+                #BONUS QUALITE DU MOT 
+                if [ ${#mot_joueur} -eq 7 ]; 
+                then
+                    echo "BONUS : +20 points pour avoir joué toutes les lettres "
+                    ((score_total+=20))
+
+                elif [ ${#mot_joueur} -eq 5 ]; 
+                then
+                    echo "PETIT BONUS : +10 points pour avoir fait un mot long"
+                    ((score_total+=10))
+                fi
+
+                #BONUS SPECIAUX MOT CACHES
+                if [ $mot_joueur == "chance" ]; 
+                then
+                    echo "BONUS : CHANCEUX !!! "
+                    ((score_total+=100))
+
+                elif [ $mot_joueur == "joker" ];
+                then
+                    echo "BONUS : JOKER (super film au passage)"
+                    ((score_total+=25))
+
+                elif [ $mot_joueur == "fortune" ]; 
+                then
+                    echo "BONUS : un max de points !"
+                    ((score_total+=75))
+
+                elif [ $mot_joueur == "zellama" ]; 
+                then
+                    echo "BONUS : Prof trouvé !"
+                    ((score_total+=250))
+                fi
 
                 #on enleve du porte lettre les lettres jouées
                 for ((i=0; i<${#mot_joueur}; i++)); 
@@ -323,23 +366,84 @@ untour() {
     return 0
 }
 
+
+pseudo=""
+nom_joueur() {
+    echo -e "\e[1;33m"
+    echo "Quel est ton nom ?"
+    echo -e "\e[0m"
+    read -r pseudo
+
+}
+
+nb_tours_choisi=0
+demander_nb_tours() {
+    choix_mode=""
+    while [[ "$choix_mode" != "1" && "$choix_mode" != "2" ]]; 
+    do
+        read -rp "Choissisez "1" pour MODE RAPIDE (5 tours) ou "2" pour MODE NORMAL (10 tours) " choix_mode
+    done
+
+    if [[ "$choix_mode" == "1" ]]; 
+    then
+        nb_tours_choisi=5
+    else
+        nb_tours_choisi=10
+    fi
+}
+
 jeu() {
+
+    #verif pour pas plantage si manque de fichier
+    if [[ ! -f "Dictionnaire.txt" ]]; 
+    then
+        echo "Il manque Dictionnaire.txt"
+        exit 1
+    fi
+
+    if [[ ! -f "Lettres.txt" ]];
+    then
+        echo "Il manque Lettres.txt"
+        exit 1
+    fi
+
     charger_sac2 Lettres.txt
+
+
+    nom_joueur
+    #echo "test nom $pseudo"
+
+    demander_nb_tours
+
     score_total=0
 
     porte_lettres=()
     piocher_lettres 7
 
-    for ((tour=1; tour<=3; tour++)); 
+    for ((tour=1; tour<=$nb_tours_choisi; tour++)); 
     do
         echo ""
+        echo ""
         echo "====== TOUR $tour ======"
+        echo "Prépare-toi pour le prochain tour..."
+        sleep 1
+        echo "3..."
+        sleep 1
+        echo "2..."
+        sleep 1
+        echo "1..."
+        sleep 1
+        clear
         untour
         echo "Score actuel : $score_total"
     done
+
     echo ""
     echo "===== FIN DE LA PARTIE ====="
-    echo "Score final : $score_total"
+    echo ""
+    echo "Score final : $score_total. (Tu peux retrouver tous les scores dans le fichier scores.txt)"
+    echo "$pseudo a obtenu $score_total points" >> scores.txt #on va enrengistrer le score du joueur
+
 }
 
 menu_accueil() {
@@ -350,7 +454,7 @@ menu_accueil() {
     echo "\__ \( (__  )   / /(__)\  ) _ < ) _ < )(__  )__)"
     echo "(___/ \___)(_)\_)(__)(__)(____/(____/(____)(____)"
     echo ""
-    echo -e "         \e[1;33m"
+    echo -e "\e[1;33m"
     echo "---------------------------------------------------------"
     echo "          SCRABBLE SOLITAIRE - PROGRAMMATION SYSTEME"
     echo "          Cours de Mme Zellama | TD6 - William Miserolle"
@@ -358,8 +462,10 @@ menu_accueil() {
     echo -e "\e[1;36m"
     echo -e "\e[0m"
     echo ""
+    echo "Avec un peu de CHANCE des bonus peuvent se produire"
+    echo ""
     echo "le sac peut prendre un peu de temps à charger patience :) "
-    echo "Appuie sur Entrer pour commencer..."
+    echo "Appuie sur ENTRER pour commencer"
     read -r
 }
 
