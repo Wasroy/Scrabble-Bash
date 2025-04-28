@@ -20,6 +20,7 @@ Clone the repository and make the main script executable:
 ```bash
 chmod +x jeu.sh
 ./jeu.sh
+```
 
 ## Author
 - William Miserolle (TD6)
