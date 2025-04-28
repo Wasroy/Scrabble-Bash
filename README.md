@@ -22,9 +22,6 @@ chmod +x jeu.sh
 ./jeu.sh
 ```
 
-## Author
-- William Miserolle (TD6)
-
 ## Notes
 This project is intended for educational purposes. It showcases how to use associative arrays, modular functions, and create an interactive terminal-based game with colored output in Bash.
 
